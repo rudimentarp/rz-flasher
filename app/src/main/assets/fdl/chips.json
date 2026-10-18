@@ -1,0 +1,72 @@
+[
+  {
+    "id": "sc9820e",
+    "name": "SC9820E",
+    "addr1": "0x5000",
+    "addr2": "0x9EFFFE00",
+    "fdl1": "fdl/sc9820e/fdl1.bin",
+    "fdl2": "fdl/sc9820e/fdl2.bin",
+    "size1": 37620,
+    "size2": 435524
+  },
+  {
+    "id": "sc9832e",
+    "name": "SC9832E",
+    "addr1": "0x5000",
+    "addr2": "0x9EFFFE00",
+    "fdl1": "fdl/sc9832e/fdl1.bin",
+    "fdl2": "fdl/sc9832e/fdl2.bin",
+    "size1": 37620,
+    "size2": 435524
+  },
+  {
+    "id": "sc9863a",
+    "name": "SC9863A",
+    "addr1": "0x5500",
+    "addr2": "0x9EFFFE00",
+    "fdl1": "fdl/sc9863a/fdl1.bin",
+    "fdl2": "fdl/sc9863a/fdl2.bin",
+    "size1": 52324,
+    "size2": 776580
+  },
+  {
+    "id": "ums312",
+    "name": "UMS312",
+    "addr1": "0x5000",
+    "addr2": "0x9EFFFE00",
+    "fdl1": "fdl/ums312/fdl1.bin",
+    "fdl2": "fdl/ums312/fdl2.bin",
+    "size1": 54804,
+    "size2": 550276
+  },
+  {
+    "id": "ums512",
+    "name": "UMS512",
+    "addr1": "0x5500",
+    "addr2": "0x9EFFFE00",
+    "fdl1": "fdl/ums512/fdl1.bin",
+    "fdl2": "fdl/ums512/fdl2.bin",
+    "size1": 59044,
+    "size2": 1131220
+  },
+  {
+    "id": "ums9230",
+    "name": "UMS9230",
+    "addr1": "0x65000800",
+    "addr2": "0xB4FFFE00",
+    "fdl1": "fdl/ums9230/fdl1.bin",
+    "fdl2": "fdl/ums9230/fdl2.bin",
+    "size1": 60200,
+    "size2": 1062104
+  },
+  {
+    "id": "ud710",
+    "name": "UD710",
+    "addr1": "0x5500",
+    "addr2": "0x9EFFFE00",
+    "fdl1": "fdl/ud710/fdl1.bin",
+    "fdl2": "fdl/ud710/fdl2.bin",
+    "size1": 49236,
+    "size2": 667396
+  }
+]

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Spreadtrum / Unisoc -->
+    <usb-device vendor-id="6018" product-id="19712" />
+    <usb-device vendor-id="6018" product-id="19713" />
+    <usb-device vendor-id="6018" product-id="19714" />
+    <!-- Google / ADB interface (class filter via broad VID) -->
+    <usb-device vendor-id="6353" />
+    <!-- Google -->
+    <usb-device vendor-id="6353" product-id="20117" />
+    <!-- Fastboot / ADB common -->
+    <usb-device vendor-id="6353" product-id="4" />
+    <usb-device vendor-id="6353" product-id="54737" />
+    <!-- Xiaomi -->
+    <usb-device vendor-id="10007" />
+    <!-- Huawei -->
+    <usb-device vendor-id="4817" />
+    <!-- OPPO / OnePlus / realme (various) -->
+    <usb-device vendor-id="8888" />
+    <usb-device vendor-id="10413" />
+    <!-- Samsung -->
+    <usb-device vendor-id="1256" />
+    <!-- MediaTek -->
+    <usb-device vendor-id="3725" />
+    <!-- Qualcomm -->
+    <usb-device vendor-id="1478" />
+</resources>
