@@ -1,9 +1,243 @@
 # RZ-Flasher
 
+**Spreadtrum / UNISOC flasher — rewritten in Jetpack Compose with a liquid glass UI**
+
+[![Platform](https://img.shields.io/badge/Platform-Android%206.0%2B-3DDC84?logo=android&logoColor=white)](#)
+[![Compose](https://img.shields.io/badge/Jetpack%20Compose-1.12.0-4285F4?logo=jetpackcompose&logoColor=white)](#)
+[![LiquidGlass](https://img.shields.io/badge/io.github.kyant0%3Abackdrop-2.0.1-9C6ADE)](#)
+
+> A community flash tool for Spreadtrum (UNISOC) devices, rebuilt from scratch.
+> The original was Java + XML Views, built with AIDE on a phone.
+> This version is Jetpack Compose, using the official
+> [Kyant0/AndroidLiquidGlass](https://github.com/Kyant0/AndroidLiquidGlass) 2.0.1 library.
+
+**English** · [中文](#中文说明)
+
+---
+
+## ⚠️ Language Support
+
+**The app interface is Chinese only.** There is currently no English (or any other) localized UI.
+
+This README and the technical article are bilingual for the benefit of international developers
+reading the source, but if you install the APK you will see a Chinese interface.
+English UI support is not implemented yet.
+
+---
+
+## Features
+
+### 🧊 Liquid Glass UI
+
+Built on the official `io.github.kyant0:backdrop` library — this is real optical refraction,
+not just a translucent background:
+
+- **SDF refraction shader** — an AGSL (`RuntimeShader`) fragment shader derives the glass
+  surface normal from a signed distance field, then offsets the backdrop texture sample along
+  that normal to simulate a convex lens
+- **Chromatic aberration** — R/G/B channels are sampled at slightly different refraction
+  indices, producing a genuine rainbow fringe at the edges
+- **Fresnel highlight** — edge highlights driven by the angle between the surface normal and
+  the light source
+- **Backdrop recording** — the wallpaper layer is recorded into a GPU texture that every glass
+  component samples from
+
+### 📱 Capability Tiers
+
+Rendering capability differs across Android versions, so the app picks the best available path:
+
+| Android version | API | Rendering |
+|---|---|---|
+| 13+ | SDK 33+ | Full AGSL real-time refraction + chromatic aberration + highlight |
+| 12 | SDK 31–32 | `RenderEffect` GPU blur |
+| 6.0 – 11 | SDK 23–30 | Translucent frosted-glass fallback |
+
+### 🔧 Flashing
+
+Based on the **BSDL protocol** (Spreadtrum Bootloader Download Protocol):
+
+- Device connection / Kickto (boot into download mode)
+- Two-stage FDL1 / FDL2 bootloader loading (built-in, custom, or extracted from PAC)
+- PAC firmware parsing, per-partition selection and flashing
+- Partition table reading / Repartition / batch flashing
+- Device operations: reboot / Recovery / Fastboot / power off / factory reset
+- Live progress and transfer-rate display, scrolling log
+
+---
+
+## Screens
+
+Four bottom tabs (liquid glass capsule navigation):
+
+```
+┌─────────────────────────────┐
+│ Connect  Flash  Log  Tools  │  ← LiquidBottomTabs
+└─────────────────────────────┘
+```
+
+| Screen | Contents |
+|---|---|
+| **Connect** | Device status, one-tap FDL send, USB permission |
+| **Flash** | PAC selection, partition checklist, progress bar, flash control |
+| **Log** | Scrolling log, clear / save |
+| **Tools** | 7 glass cards: FDL selection / PAC firmware / partition table & batch flash / device ops / save path / Kickto |
+
+---
+
+## Tech Stack
+
+| Item | Version |
+|---|---|
+| Language | Kotlin + Java (mixed) |
+| UI framework | Jetpack Compose `1.12.0` |
+| Material | Material3 `1.4.0` |
+| Liquid glass | `io.github.kyant0:backdrop:2.0.1` |
+| Shapes | `io.github.kyant0:shapes:1.2.1` |
+| minSdk | 23 (Android 6.0) |
+| targetSdk | 35 |
+| compileSdk | 37 |
+| Build | Gradle 9.7.1 + Kotlin 2.x |
+
+---
+
+## Source Layout
+
+```
+app/src/main/java/com/ryu/sprdflasher/
+├── BslProtocol.java              BSDL protocol codec
+├── UsbFlashEngine.java           Core flashing engine (USB / FDL / partition I/O)
+├── UsbPermissionManager.java     USB permission handling
+├── License*.java                 Licensing module
+├── MainActivity.kt               Entry point
+├── flash/
+│   ├── FlashEngineBridge.kt      UI ⇄ engine bridge (state / log / progress)
+│   └── FlashViewModel.kt
+└── ui/compose/
+    ├── LiquidGlassScreen.kt      Main screen (all pages)
+    ├── GlassSurface.kt           Base glass panel component
+    ├── GlassButton.kt            Glass button
+    ├── AuroraBackground.kt       Wallpaper background (real-time Gaussian blur)
+    ├── DeviceRefreshRate.kt      High-refresh-rate adaptation
+    ├── SlidingGlassTabs.kt
+    ├── Pressable.kt
+    ├── AppIconBadge.kt
+    └── catalog/                  Ported from the official Catalog
+        ├── LiquidBottomTabs.kt   Bottom liquid glass capsule navigation
+        ├── LiquidBottomTab.kt
+        ├── LiquidButton.kt
+        ├── LiquidSlider.kt
+        ├── DampedDragAnimation.kt  Over-damped drag physics
+        └── InteractiveHighlight.kt Interactive highlight
+```
+
+---
+
+## Build
+
+### Requirements
+
+- JDK 17+
+- Android SDK (compileSdk 37 + build-tools)
+- Gradle 9.x (no wrapper script is bundled; use your system Gradle)
+
+### Command line
+
+```bash
+export ANDROID_HOME=/path/to/android/sdk
+gradle assembleDebug
+```
+
+Output: `app/build/outputs/apk/debug/app-debug.apk`.
+
+### ⚠️ Non-ASCII paths break the build
+
+**aapt2, javac, and Gradle do not support non-ASCII paths.** If your project path contains
+CJK characters, the build fails. Mirror the project to a pure-ASCII path first:
+
+```powershell
+robocopy "D:\dev\我的项目\刷机工具" "D:\build-mirror" /E
+cd D:\build-mirror
+gradle assembleDebug
+```
+
+### ⚠️ AIDE is not supported
+
+The original project was built with AIDE (a phone-side IDE). **AIDE does not support
+Jetpack Compose or the Gradle Kotlin DSL**, so this rewrite must be built on a PC.
+
+---
+
+## Performance Notes
+
+The liquid glass AGSL shaders are computed **in real time** — every glass layer runs one
+fragment shader pass. The Tools screen has 7 glass cards plus 20+ glass buttons, meaning
+20+ shader instances per frame while scrolling.
+
+**This means scrolling will drop frames on low- and mid-range devices.** That is the inherent
+cost of the effect, not a bug.
+
+Optimizations that were **tried and rejected**:
+
+| Approach | Result |
+|---|---|
+| Fewer cards (7 → 4) | Breaks the original layout; not accepted |
+| Downsampled pre-baked wallpaper | **Turns the wallpaper into visible mosaic blocks** — failed |
+| Disabling refraction while scrolling | Visible flicker, bad feel |
+| Lower `blurRadius` / `lens` values | Noticeably weakens the glass thickness |
+
+**Final decision: keep the full effect, accept frame drops.**
+
+> If you want the visual quality of iOS-style liquid glass, you have to pay the shader cost.
+> Either sacrifice the effect or accept the frame rate. That trade-off is the user's call.
+
+---
+
+## Documentation
+
+- **[Technical article (English)](docs/article-liquid-glass-rewrite.md)** — how the liquid
+  glass works, the Catalog port, capability tiers, the performance dead-ends, engine decoupling,
+  and build pitfalls.
+- **[技术文章（中文）](docs/技术文章-液态玻璃重写.md)** — the same article in Chinese.
+
+---
+
+## Credits
+
+- [Kyant0/AndroidLiquidGlass](https://github.com/Kyant0/AndroidLiquidGlass) — liquid glass
+  library, the UI foundation of this project
+- [ilyakurdyukov/spreadtrum_flash](https://github.com/ilyakurdyukov/spreadtrum_flash) — BSDL
+  protocol reference (`spd_dump`)
+- Original flasher author **rudimentary**
+
+---
+
+## Disclaimer
+
+**Flashing is risky. A bricked device is your own responsibility.**
+
+This project is for learning and research only. The author accepts no liability for any
+device damage or data loss caused by using this tool. Make sure you understand what you are
+doing and back up your data first.
+
+---
+
+## License
+
+No open-source license is specified. Contact the author for permission to use, distribute,
+or modify.
+
+---
+
+# 中文说明
+
 **展讯（Spreadtrum / UNISOC）刷机工具 —— Jetpack Compose 重写版 + 液态玻璃 UI**
 
 > 把一个基于 Java + XML View + AIDE 构建的老式刷机工具，完整重写为 Jetpack Compose，
 > 并接入 [Kyant0/AndroidLiquidGlass](https://github.com/Kyant0/AndroidLiquidGlass) 2.0.1 官方液态玻璃库。
+
+**注意：应用界面目前只有中文，暂不支持英文或其他语言。**
+
+浏览器打开时，若上方英文说明与下方中文重复，以中文为准。
 
 ---
 
@@ -128,7 +362,7 @@ gradle assembleDebug
 ### ⚠️ 关于中文路径
 
 **aapt2 / javac / Gradle 均不支持中文路径**。如果项目路径含中文，构建会直接失败。
-解决办法是把整个项目镜像到纯 ASCII 路径再构建，例如：
+解决办法是把整个项目镜像到纯 ASCII 路径再构建：
 
 ```powershell
 robocopy "D:\我的项目\刷机工具" "D:\build-mirror" /E
@@ -163,6 +397,14 @@ gradle assembleDebug
 
 > 想要 iOS 那种液态玻璃质感，就必须付着色器成本。要么牺牲效果，要么接受帧率。
 > 这个取舍由使用者自己判断。
+
+---
+
+## 文档
+
+- **[技术文章（中文）](docs/技术文章-液态玻璃重写.md)** — 液态玻璃原理、Catalog 移植、
+  能力分级、性能死胡同、引擎解耦、构建踩坑。
+- **[Technical article (English)](docs/article-liquid-glass-rewrite.md)** — 同一篇文章的英文版。
 
 ---
 
